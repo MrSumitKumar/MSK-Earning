@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Plan Activation - {{ site.business_name }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="bg-white rounded-lg shadow-lg p-6">
+        <div class="flex items-center justify-between mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">Plan Activation</h1>
+            <a href="{% url 'plan_history' %}" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">
+                View Plan History
+            </a>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="mb-4 p-4 rounded-lg {% if message.tags == 'error' %}bg-red-100 text-red-700{% else %}bg-green-100 text-green-700{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- Current Plan Status -->
+        <div class="mb-8 p-4 bg-gray-50 rounded-lg">
+            <h2 class="text-xl font-semibold mb-2">Current Status</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-blue-600">₹{{ member.wallet_balance }}</div>
+                    <div class="text-sm text-gray-600">Wallet Balance</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold {% if member.status == 'Active' %}text-green-600{% else %}text-red-600{% endif %}">
+                        {{ member.status }}
+                    </div>
+                    <div class="text-sm text-gray-600">Member Status</div>
+                </div>
+                <div class="text-center">
+                    {% if current_plan %}
+                        <div class="text-2xl font-bold text-purple-600">{{ current_plan.plan.name }}</div>
+                        <div class="text-sm text-gray-600">Active Plan</div>
+                    {% else %}
+                        <div class="text-2xl font-bold text-gray-600">No Plan</div>
+                        <div class="text-sm text-gray-600">Current Plan</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Available Plans -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-semibold mb-4">Available Plans</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for plan in plans %}
+                <div class="border rounded-lg p-6 shadow-md hover:shadow-lg transition-shadow">
+                    <div class="text-center mb-4">
+                        <h3 class="text-xl font-bold text-gray-800">{{ plan.name }}</h3>
+                        <div class="text-3xl font-bold text-blue-600 mt-2">₹{{ plan.price }}</div>
+                    </div>
+                    
+                    <div class="space-y-2 mb-6">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Direct Income:</span>
+                            <span class="font-semibold">₹{{ plan.direct }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Matching Income:</span>
+                            <span class="font-semibold">₹{{ plan.matching }}</span>
+                        </div>
+                    </div>
+                    
+                    {% if not current_plan %}
+                        {% if member.wallet_balance >= plan.price %}
+                            <form method="post" action="{% url 'activate_plan' plan.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="w-full bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-semibold"
+                                        onclick="return confirm('Are you sure you want to activate this plan?')">
+                                    Activate Plan
+                                </button>
+                            </form>
+                        {% else %}
+                            <button class="w-full bg-gray-400 text-white px-4 py-2 rounded-lg font-semibold cursor-not-allowed" disabled>
+                                Insufficient Wallet Balance
+                            </button>
+                        {% endif %}
+                    {% elif current_plan.plan.id == plan.id %}
+                        <button class="w-full bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold cursor-not-allowed" disabled>
+                            Current Plan
+                        </button>
+                    {% elif plan.price > current_plan.plan.price %}
+                        <button class="w-full bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg font-semibold"
+                                onclick="requestUpgrade({{ plan.id }}, '{{ plan.name }}')">
+                            Request Upgrade
+                        </button>
+                    {% else %}
+                        <button class="w-full bg-gray-400 text-white px-4 py-2 rounded-lg font-semibold cursor-not-allowed" disabled>
+                            Lower Plan
+                        </button>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Upgrade Request Modal -->
+<div id="upgradeModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+        <h3 class="text-xl font-semibold mb-4">Request Plan Upgrade</h3>
+        <form method="post" action="{% url 'request_plan_upgrade' %}">
+            {% csrf_token %}
+            <input type="hidden" id="upgrade_plan_id" name="new_plan_id">
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Plan to upgrade to:</label>
+                <div id="upgrade_plan_name" class="text-lg font-semibold text-blue-600"></div>
+            </div>
+            <div class="mb-4">
+                <label for="reason" class="block text-sm font-medium text-gray-700 mb-2">Reason for upgrade:</label>
+                <textarea name="reason" rows="3" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                          placeholder="Please provide reason for plan upgrade..."></textarea>
+            </div>
+            <div class="flex space-x-3">
+                <button type="submit" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">
+                    Submit Request
+                </button>
+                <button type="button" onclick="closeUpgradeModal()" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-lg">
+                    Cancel
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function requestUpgrade(planId, planName) {
+    document.getElementById('upgrade_plan_id').value = planId;
+    document.getElementById('upgrade_plan_name').textContent = planName;
+    document.getElementById('upgradeModal').classList.remove('hidden');
+    document.getElementById('upgradeModal').classList.add('flex');
+}
+
+function closeUpgradeModal() {
+    document.getElementById('upgradeModal').classList.add('hidden');
+    document.getElementById('upgradeModal').classList.remove('flex');
+}
+</script>
+{% endblock %}

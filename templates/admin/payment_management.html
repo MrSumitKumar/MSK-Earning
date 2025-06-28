@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Payments</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-100">
+    <!-- Navigation -->
+    <nav class="bg-blue-600 text-white p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold">Admin - Payments Management</h1>
+            <div class="flex space-x-4">
+                <a href="/admin-panel/" class="hover:text-blue-200">Dashboard</a>
+                <a href="/admin-panel/plans/" class="hover:text-blue-200">Plans</a>
+                <a href="/admin-panel/members/" class="hover:text-blue-200">Members</a>
+                <a href="/admin-panel/financial/" class="hover:text-blue-200">Financial</a>
+                <a href="/admin-panel/payments/" class="hover:text-blue-200">Payments</a>
+                <a href="/admin" class="hover:text-blue-200">Django Admin</a>
+                <a href="/logout/" class="hover:text-blue-200">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto p-6">
+        <!-- Filter Section -->
+        <div class="bg-white p-6 rounded-lg shadow mb-6">
+            <h3 class="text-lg font-semibold mb-4">Filter Payment Requests</h3>
+            <form method="GET" class="flex space-x-4">
+                <select name="status" class="border border-gray-300 rounded-md px-3 py-2">
+                    <option value="">All Status</option>
+                    <option value="Pending" {% if status_filter == 'Pending' %}selected{% endif %}>Pending</option>
+                    <option value="Approved" {% if status_filter == 'Approved' %}selected{% endif %}>Approved</option>
+                    <option value="Completed" {% if status_filter == 'Completed' %}selected{% endif %}>Completed</option>
+                    <option value="Rejected" {% if status_filter == 'Rejected' %}selected{% endif %}>Rejected</option>
+                </select>
+                <button type="submit" class="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700">
+                    Filter
+                </button>
+            </form>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+            <div class="bg-yellow-50 p-6 rounded-lg shadow text-center">
+                <h3 class="text-lg font-semibold text-yellow-800">Pending</h3>
+                <p class="text-3xl font-bold text-yellow-600">{{ stats.pending }}</p>
+            </div>
+            <div class="bg-blue-50 p-6 rounded-lg shadow text-center">
+                <h3 class="text-lg font-semibold text-blue-800">Approved</h3>
+                <p class="text-3xl font-bold text-blue-600">{{ stats.approved }}</p>
+            </div>
+            <div class="bg-green-50 p-6 rounded-lg shadow text-center">
+                <h3 class="text-lg font-semibold text-green-800">Completed</h3>
+                <p class="text-3xl font-bold text-green-600">{{ stats.completed }}</p>
+            </div>
+            <div class="bg-red-50 p-6 rounded-lg shadow text-center">
+                <h3 class="text-lg font-semibold text-red-800">Rejected</h3>
+                <p class="text-3xl font-bold text-red-600">{{ stats.rejected }}</p>
+            </div>
+        </div>
+
+        <!-- Payment Requests Table -->
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <div class="px-6 py-4 border-b">
+                <h3 class="text-lg font-semibold">Payment Requests</h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Member</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Payment Details</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Request Date</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        {% for request in payment_requests %}
+                        <tr>
+                            <td class="px-6 py-4 text-sm font-medium text-gray-900">#{{ request.id }}</td>
+                            <td class="px-6 py-4">
+                                <div>
+                                    <div class="font-medium text-gray-900">{{ request.member.user.first_name|default:request.member.user.username }}</div>
+                                    <div class="text-sm text-gray-500">@{{ request.member.user.username }}</div>
+                                    <div class="text-sm text-gray-500">{{ request.member.user.email }}</div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-sm font-bold text-green-600">₹{{ request.amount|floatformat:2 }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-900">{{ request.request_type }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">
+                                {% if request.bank_name %}
+                                    <div><strong>Bank:</strong> {{ request.bank_name }}</div>
+                                    <div><strong>Account:</strong> {{ request.account_number }}</div>
+                                    <div><strong>IFSC:</strong> {{ request.ifsc_code }}</div>
+                                    <div><strong>Holder:</strong> {{ request.account_holder_name }}</div>
+                                {% endif %}
+                                {% if request.upi_id %}
+                                    <div><strong>UPI:</strong> {{ request.upi_id }}</div>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="px-2 py-1 text-xs rounded-full 
+                                    {% if request.status == 'Pending' %}bg-yellow-100 text-yellow-800
+                                    {% elif request.status == 'Approved' %}bg-blue-100 text-blue-800
+                                    {% elif request.status == 'Completed' %}bg-green-100 text-green-800
+                                    {% else %}bg-red-100 text-red-800{% endif %}">
+                                    {{ request.status }}
+                                </span>
+                                {% if request.approved_by %}
+                                    <div class="text-xs text-gray-500 mt-1">
+                                        By: {{ request.approved_by.username }}
+                                    </div>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-500">
+                                {{ request.request_date|date:"M d, Y H:i" }}
+                            </td>
+                            <td class="px-6 py-4">
+                                {% if request.status == 'Pending' %}
+                                <div class="flex space-x-2">
+                                    <button onclick="approveRequest({{ request.id }})" 
+                                        class="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700">
+                                        Approve
+                                    </button>
+                                    <button onclick="rejectRequest({{ request.id }})" 
+                                        class="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700">
+                                        Reject
+                                    </button>
+                                </div>
+                                {% elif request.status == 'Approved' %}
+                                <button onclick="completeRequest({{ request.id }})" 
+                                    class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">
+                                    Mark Complete
+                                </button>
+                                {% else %}
+                                <span class="text-gray-500 text-sm">No actions</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="px-6 py-4 text-center text-gray-500">No payment requests found</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Bulk Actions -->
+        {% if payment_requests %}
+        <div class="mt-6 bg-white p-6 rounded-lg shadow">
+            <h3 class="text-lg font-semibold mb-4">Bulk Actions</h3>
+            <div class="flex space-x-4">
+                <button onclick="bulkApprove()" 
+                    class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+                    Bulk Approve Pending
+                </button>
+                <button onclick="bulkReject()" 
+                    class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
+                    Bulk Reject Pending
+                </button>
+                <button onclick="bulkComplete()" 
+                    class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                    Bulk Complete Approved
+                </button>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        function approveRequest(requestId) {
+            if (confirm('Are you sure you want to approve this payment request?')) {
+                updateRequestStatus(requestId, 'approve');
+            }
+        }
+
+        function rejectRequest(requestId) {
+            const reason = prompt('Enter rejection reason (optional):');
+            if (confirm('Are you sure you want to reject this payment request?')) {
+                updateRequestStatus(requestId, 'reject', reason);
+            }
+        }
+
+        function completeRequest(requestId) {
+            const transactionId = prompt('Enter transaction ID for completion:');
+            if (transactionId && confirm('Are you sure you want to mark this payment as completed?')) {
+                updateRequestStatus(requestId, 'complete', transactionId);
+            }
+        }
+
+        function updateRequestStatus(requestId, action, data = null) {
+            fetch(`/wallet/admin-action/${requestId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    action: action,
+                    data: data
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                alert('Error: ' + error);
+            });
+        }
+
+        function bulkApprove() {
+            if (confirm('Are you sure you want to approve all pending payment requests?')) {
+                bulkAction('approve');
+            }
+        }
+
+        function bulkReject() {
+            const reason = prompt('Enter rejection reason for all pending requests:');
+            if (reason && confirm('Are you sure you want to reject all pending payment requests?')) {
+                bulkAction('reject', reason);
+            }
+        }
+
+        function bulkComplete() {
+            if (confirm('Are you sure you want to mark all approved payment requests as completed?')) {
+                bulkAction('complete');
+            }
+        }
+
+        function bulkAction(action, data = null) {
+            fetch(`/wallet/bulk-admin-action/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    action: action,
+                    data: data
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(`${data.count} requests processed successfully.`);
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                alert('Error: ' + error);
+            });
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+
+
+</body>
+</html>

@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% block title %}Profile - {{ site.company }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-8">
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-primary-600 to-primary-800 px-6 py-8">
+            <div class="flex items-center">
+                <div class="w-24 h-24 bg-white rounded-full flex items-center justify-center mr-6">
+                    {% if member.profile_image %}
+                        <img src="{{ member.profile_image.url }}" alt="Profile" class="w-20 h-20 rounded-full object-cover">
+                    {% else %}
+                        <i data-feather="user" class="w-12 h-12 text-primary-600"></i>
+                    {% endif %}
+                </div>
+                <div class="text-white">
+                    <h1 class="text-3xl font-bold">{{ member.user.first_name|default:member.user.username }}</h1>
+                    <p class="text-primary-100">Member ID: {{ member.user.username }}</p>
+                    <p class="text-primary-100">Status: {{ member.status }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Information -->
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Personal Information -->
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800 mb-6">Personal Information</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Full Name</label>
+                            <p class="mt-1 text-sm text-gray-900">{{ member.user.first_name|default:"Not provided" }}</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Email Address</label>
+                            <p class="mt-1 text-sm text-gray-900">{{ member.user.email }}</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Mobile Number</label>
+                            <p class="mt-1 text-sm text-gray-900">{{ member.mobile_no }}</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Join Date</label>
+                            <p class="mt-1 text-sm text-gray-900">{{ member.joined_on|date:"F d, Y" }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MLM Information -->
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800 mb-6">MLM Information</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Sponsor</label>
+                            <p class="mt-1 text-sm text-gray-900">
+                                {% if member.sponsor %}
+                                    {{ member.sponsor.first_name|default:member.sponsor.username }}
+                                {% else %}
+                                    Admin
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Position</label>
+                            <p class="mt-1 text-sm text-gray-900">{{ member.position|default:"Root" }}</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Current Rank</label>
+                            <p class="mt-1 text-sm text-gray-900">Rank {{ member.rank_no }}</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Level</label>
+                            <p class="mt-1 text-sm text-gray-900">{{ member.level }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Financial Summary -->
+            <div class="mt-8">
+                <h2 class="text-xl font-bold text-gray-800 mb-6">Financial Summary</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <div class="text-2xl font-bold text-green-600">₹{{ member.total_income|floatformat:2 }}</div>
+                        <div class="text-gray-600">Total Income</div>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <div class="text-2xl font-bold text-blue-600">₹{{ member.wallet_balance|floatformat:2 }}</div>
+                        <div class="text-gray-600">Wallet Balance</div>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <div class="text-2xl font-bold text-purple-600">₹{{ member.total_withdrawal|floatformat:2 }}</div>
+                        <div class="text-gray-600">Total Withdrawals</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Income Breakdown -->
+            <div class="mt-8">
+                <h2 class="text-xl font-bold text-gray-800 mb-6">Income Breakdown</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-gray-50 rounded-lg p-4 text-center">
+                        <div class="text-lg font-bold text-green-600">₹{{ member.direct_income|floatformat:2 }}</div>
+                        <div class="text-gray-600 text-sm">Direct Income</div>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4 text-center">
+                        <div class="text-lg font-bold text-blue-600">₹{{ member.level_income|floatformat:2 }}</div>
+                        <div class="text-gray-600 text-sm">Level Income</div>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4 text-center">
+                        <div class="text-lg font-bold text-purple-600">₹{{ member.matching_income|floatformat:2 }}</div>
+                        <div class="text-gray-600 text-sm">Binary Income</div>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4 text-center">
+                        <div class="text-lg font-bold text-yellow-600">₹{{ member.resale_income|floatformat:2 }}</div>
+                        <div class="text-gray-600 text-sm">Service Income</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="mt-8 flex flex-wrap gap-4">
+                <a href="{% url 'setting' %}" class="bg-primary-600 text-white px-6 py-2 rounded-lg hover:bg-primary-700 transition">
+                    <i data-feather="edit" class="w-4 h-4 inline mr-2"></i>
+                    Edit Profile
+                </a>
+                <a href="{% url 'payment_setting' %}" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition">
+                    <i data-feather="credit-card" class="w-4 h-4 inline mr-2"></i>
+                    Payment Settings
+                </a>
+                <a href="{% url 'password_reset' %}" class="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition">
+                    <i data-feather="lock" class="w-4 h-4 inline mr-2"></i>
+                    Change Password
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

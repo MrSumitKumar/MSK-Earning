@@ -1,0 +1,214 @@
+{% extends 'base.html' %}
+
+{% block title %}Binary Team Income - {{ site.company }}{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800">Binary Team Income</h1>
+                <p class="text-gray-600">Income from binary tree matching pairs</p>
+            </div>
+            <div class="text-right">
+                <div class="text-3xl font-bold text-purple-600">₹{{ member.matching_income|floatformat:2 }}</div>
+                <div class="text-gray-600">Total Binary Income</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Binary Team Summary -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <div class="flex items-center">
+                <div class="bg-purple-100 rounded-full p-3 mr-4">
+                    <i data-feather="git-branch" class="w-6 h-6 text-purple-600"></i>
+                </div>
+                <div>
+                    <div class="text-2xl font-bold text-gray-800">₹{{ member.matching_income|floatformat:2 }}</div>
+                    <div class="text-gray-600">Total Binary Income</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <div class="flex items-center">
+                <div class="bg-blue-100 rounded-full p-3 mr-4">
+                    <i data-feather="arrow-left" class="w-6 h-6 text-blue-600"></i>
+                </div>
+                <div>
+                    <div class="text-2xl font-bold text-gray-800">
+                        {% with left_count=member.count_team_members:'left' %}{{ left_count.total }}{% endwith %}
+                    </div>
+                    <div class="text-gray-600">Left Team</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <div class="flex items-center">
+                <div class="bg-green-100 rounded-full p-3 mr-4">
+                    <i data-feather="arrow-right" class="w-6 h-6 text-green-600"></i>
+                </div>
+                <div>
+                    <div class="text-2xl font-bold text-gray-800">
+                        {% with right_count=member.count_team_members:'right' %}{{ right_count.total }}{% endwith %}
+                    </div>
+                    <div class="text-gray-600">Right Team</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <div class="flex items-center">
+                <div class="bg-yellow-100 rounded-full p-3 mr-4">
+                    <i data-feather="link" class="w-6 h-6 text-yellow-600"></i>
+                </div>
+                <div>
+                    <div class="text-2xl font-bold text-gray-800">{{ member.all_matching_pairs }}</div>
+                    <div class="text-gray-600">Matching Pairs</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Binary Structure Visualization -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <h2 class="text-lg font-semibold text-gray-800 mb-6">Binary Team Structure</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="text-center">
+                <div class="bg-blue-50 rounded-lg p-6">
+                    <div class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i data-feather="arrow-left" class="w-8 h-8 text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Left Team</h3>
+                    {% with left_count=member.count_team_members:'left' %}
+                    <div class="space-y-2">
+                        <div class="text-2xl font-bold text-blue-600">{{ left_count.total }}</div>
+                        <div class="text-gray-600">Total Members</div>
+                        <div class="text-sm text-gray-500">Active: {{ left_count.active }} | Inactive: {{ left_count.inactive }}</div>
+                    </div>
+                    {% endwith %}
+                </div>
+            </div>
+            
+            <div class="text-center">
+                <div class="bg-green-50 rounded-lg p-6">
+                    <div class="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i data-feather="arrow-right" class="w-8 h-8 text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Right Team</h3>
+                    {% with right_count=member.count_team_members:'right' %}
+                    <div class="space-y-2">
+                        <div class="text-2xl font-bold text-green-600">{{ right_count.total }}</div>
+                        <div class="text-gray-600">Total Members</div>
+                        <div class="text-sm text-gray-500">Active: {{ right_count.active }} | Inactive: {{ right_count.inactive }}</div>
+                    </div>
+                    {% endwith %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if history %}
+    <!-- Binary Income History -->
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-lg font-semibold text-gray-800">Binary Income Transactions</h2>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for income in history %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ income.created_at|date:"M d, Y H:i" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="text-lg font-bold text-purple-600">₹{{ income.amount|floatformat:2 }}</span>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-900">
+                            {{ income.description|default:"Binary matching income" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
+                                Credited
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% else %}
+    <!-- Empty State -->
+    <div class="bg-white rounded-lg shadow-lg p-12 text-center">
+        <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <i data-feather="git-branch" class="w-12 h-12 text-gray-400"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">No Binary Income Yet</h2>
+        <p class="text-gray-600 mb-8">You haven't earned any binary income yet. Build your left and right teams to start earning matching pairs income!</p>
+        
+        <div class="space-y-4">
+            <p class="text-gray-700 font-semibold">How Binary Income Works:</p>
+            <div class="max-w-2xl mx-auto text-left bg-gray-50 rounded-lg p-6">
+                <ul class="space-y-2 text-sm text-gray-700">
+                    <li class="flex items-start">
+                        <i data-feather="check" class="w-4 h-4 text-green-600 mr-2 mt-0.5"></i>
+                        Build teams on both left and right sides
+                    </li>
+                    <li class="flex items-start">
+                        <i data-feather="check" class="w-4 h-4 text-green-600 mr-2 mt-0.5"></i>
+                        When both sides have active members, you earn matching pairs income
+                    </li>
+                    <li class="flex items-start">
+                        <i data-feather="check" class="w-4 h-4 text-green-600 mr-2 mt-0.5"></i>
+                        Income depends on your plan and number of matching pairs
+                    </li>
+                </ul>
+            </div>
+            <div class="space-x-4">
+                <a href="{% url 'genealogy_tree' member.id %}" class="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition">
+                    View Binary Tree
+                </a>
+                <a href="{% url 'dashboard' %}" class="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition">
+                    Go to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Navigation -->
+    <div class="mt-8 flex justify-center space-x-4">
+        <a href="{% url 'direct_income_history' %}" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition">
+            <i data-feather="users" class="w-4 h-4 inline mr-2"></i>
+            Direct Income
+        </a>
+        <a href="{% url 'level_income_history' %}" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
+            <i data-feather="layers" class="w-4 h-4 inline mr-2"></i>
+            Level Income
+        </a>
+        <a href="{% url 'resale_income_history' %}" class="bg-yellow-600 text-white px-6 py-2 rounded-lg hover:bg-yellow-700 transition">
+            <i data-feather="shopping-cart" class="w-4 h-4 inline mr-2"></i>
+            Service Income
+        </a>
+        <a href="{% url 'dashboard' %}" class="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition">
+            <i data-feather="home" class="w-4 h-4 inline mr-2"></i>
+            Dashboard
+        </a>
+    </div>
+</div>
+{% endblock %}

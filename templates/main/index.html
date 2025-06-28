@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ site.company }} - {{ site.tagline }}{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="bg-gradient-to-r from-primary-600 to-primary-800 text-white">
+    <div class="max-w-7xl mx-auto px-4 py-16">
+        <div class="text-center">
+            <h1 class="text-4xl md:text-6xl font-bold mb-6">{{ site.company }}</h1>
+            <p class="text-xl md:text-2xl mb-8">{{ site.tagline }}</p>
+            <p class="text-lg mb-8 max-w-3xl mx-auto">{{ site.about|truncatewords:30 }}</p>
+            <div class="space-x-4">
+                {% if not user.is_authenticated %}
+                    <a href="{% url 'login' %}" class="bg-white text-primary-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition">Login</a>
+                    <a href="#features" class="border border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-primary-600 transition">Learn More</a>
+                {% else %}
+                    <a href="{% url 'dashboard' %}" class="bg-white text-primary-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition">Go to Dashboard</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section id="features" class="py-16">
+    <div class="max-w-7xl mx-auto px-4">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">Multiple Income Streams</h2>
+            <p class="text-gray-600 text-lg">Discover various ways to earn with our comprehensive MLM platform</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {% for feature in features %}
+                <div class="bg-white rounded-lg shadow-lg p-6 text-center hover:shadow-xl transition">
+                    <div class="bg-primary-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                        <i data-feather="{{ feature.icon }}" class="w-8 h-8 text-primary-600"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">{{ feature.title }}</h3>
+                    <p class="text-gray-600">{{ feature.description }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Benefits Section -->
+<section class="bg-gray-100 py-16">
+    <div class="max-w-7xl mx-auto px-4">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div>
+                <h2 class="text-3xl font-bold text-gray-800 mb-6">Why Choose MSK Earning?</h2>
+                <div class="space-y-4">
+                    <div class="flex items-start">
+                        <i data-feather="check-circle" class="w-6 h-6 text-success-600 mr-3 mt-1"></i>
+                        <div>
+                            <h3 class="font-semibold text-gray-800">Dual Referral System</h3>
+                            <p class="text-gray-600">Unique left and right position referral links for better network management</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <i data-feather="check-circle" class="w-6 h-6 text-success-600 mr-3 mt-1"></i>
+                        <div>
+                            <h3 class="font-semibold text-gray-800">Binary Tree Structure</h3>
+                            <p class="text-gray-600">Visual binary tree representation with automatic placement</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <i data-feather="check-circle" class="w-6 h-6 text-success-600 mr-3 mt-1"></i>
+                        <div>
+                            <h3 class="font-semibold text-gray-800">Service Integration</h3>
+                            <p class="text-gray-600">Mobile recharge and utility services with commission earnings</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <i data-feather="check-circle" class="w-6 h-6 text-success-600 mr-3 mt-1"></i>
+                        <div>
+                            <h3 class="font-semibold text-gray-800">Rank & Rewards</h3>
+                            <p class="text-gray-600">Automatic rank updates and milestone-based rewards</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg shadow-lg p-8">
+                <h3 class="text-2xl font-bold text-gray-800 mb-6">Get Started Today</h3>
+                <p class="text-gray-600 mb-6">Join thousands of members who are already earning with MSK Earning. Start your journey to financial freedom now!</p>
+                {% if not user.is_authenticated %}
+                    <a href="{% url 'login' %}" class="w-full bg-primary-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-primary-700 transition block text-center">Join Now</a>
+                {% else %}
+                    <a href="{% url 'services' %}" class="w-full bg-primary-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-primary-700 transition block text-center">Explore Services</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Statistics Section -->
+<section class="py-16">
+    <div class="max-w-7xl mx-auto px-4">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">Our Growing Community</h2>
+            <p class="text-gray-600 text-lg">Join our thriving network of successful members</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div class="text-center">
+                <div class="text-4xl font-bold text-primary-600 mb-2">10,000+</div>
+                <div class="text-gray-600">Active Members</div>
+            </div>
+            <div class="text-center">
+                <div class="text-4xl font-bold text-primary-600 mb-2">₹50L+</div>
+                <div class="text-gray-600">Total Payouts</div>
+            </div>
+            <div class="text-center">
+                <div class="text-4xl font-bold text-primary-600 mb-2">99.9%</div>
+                <div class="text-gray-600">Uptime</div>
+            </div>
+            <div class="text-center">
+                <div class="text-4xl font-bold text-primary-600 mb-2">24/7</div>
+                <div class="text-gray-600">Support</div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

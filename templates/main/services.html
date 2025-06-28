@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block title %}Services - {{ site.company }}{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-12">
+    <!-- Hero Section -->
+    <div class="text-center mb-16">
+        <h1 class="text-4xl font-bold text-gray-800 mb-6">Our Services</h1>
+        <p class="text-xl text-gray-600 max-w-3xl mx-auto">Explore our comprehensive range of services and start earning commissions on every transaction</p>
+    </div>
+
+    <!-- Services Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+        {% for service in services %}
+            <div class="bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
+                <div class="p-6">
+                    <div class="bg-primary-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                        <i data-feather="{{ service.icon }}" class="w-8 h-8 text-primary-600"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-3 text-center">{{ service.name }}</h3>
+                    <p class="text-gray-600 text-center mb-6">{{ service.description }}</p>
+                    <div class="text-center">
+                        {% if user.is_authenticated %}
+                            <a href="{% url service.url %}" class="inline-block bg-primary-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-primary-700 transition">
+                                Use Service
+                            </a>
+                        {% else %}
+                            <a href="{% url 'login' %}" class="inline-block bg-primary-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-primary-700 transition">
+                                Login to Use
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Commission Structure -->
+    {% if user.is_authenticated %}
+    <div class="bg-gradient-to-r from-primary-50 to-primary-100 rounded-lg p-8 mb-16">
+        <div class="text-center mb-8">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">Commission Structure</h2>
+            <p class="text-gray-600 text-lg">Earn attractive commissions on every service transaction</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="bg-white rounded-lg p-6 text-center">
+                <div class="text-3xl font-bold text-primary-600 mb-2">2%</div>
+                <div class="text-gray-700 font-semibold mb-1">Mobile Recharge</div>
+                <div class="text-gray-500 text-sm">Instant commission</div>
+            </div>
+            <div class="bg-white rounded-lg p-6 text-center">
+                <div class="text-3xl font-bold text-primary-600 mb-2">1.5%</div>
+                <div class="text-gray-700 font-semibold mb-1">DTH Recharge</div>
+                <div class="text-gray-500 text-sm">Instant commission</div>
+            </div>
+            <div class="bg-white rounded-lg p-6 text-center">
+                <div class="text-3xl font-bold text-primary-600 mb-2">1%</div>
+                <div class="text-gray-700 font-semibold mb-1">Bill Payments</div>
+                <div class="text-gray-500 text-sm">Instant commission</div>
+            </div>
+            <div class="bg-white rounded-lg p-6 text-center">
+                <div class="text-3xl font-bold text-primary-600 mb-2">0.5%</div>
+                <div class="text-gray-700 font-semibold mb-1">Insurance</div>
+                <div class="text-gray-500 text-sm">Instant commission</div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- How It Works -->
+    <div class="mb-16">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">How It Works</h2>
+            <p class="text-gray-600 text-lg">Simple steps to start earning with our services</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div class="text-center">
+                <div class="bg-primary-600 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 text-white text-xl font-bold">1</div>
+                <h3 class="font-semibold text-gray-800 mb-2">Choose Service</h3>
+                <p class="text-gray-600 text-sm">Select the service you want to use from our comprehensive list</p>
+            </div>
+            <div class="text-center">
+                <div class="bg-primary-600 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 text-white text-xl font-bold">2</div>
+                <h3 class="font-semibold text-gray-800 mb-2">Complete Transaction</h3>
+                <p class="text-gray-600 text-sm">Fill in the required details and complete your transaction securely</p>
+            </div>
+            <div class="text-center">
+                <div class="bg-primary-600 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 text-white text-xl font-bold">3</div>
+                <h3 class="font-semibold text-gray-800 mb-2">Earn Commission</h3>
+                <p class="text-gray-600 text-sm">Receive instant commission credited to your wallet balance</p>
+            </div>
+            <div class="text-center">
+                <div class="bg-primary-600 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 text-white text-xl font-bold">4</div>
+                <h3 class="font-semibold text-gray-800 mb-2">Withdraw Earnings</h3>
+                <p class="text-gray-600 text-sm">Transfer your earnings to your bank account or UPI</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA Section -->
+    {% if not user.is_authenticated %}
+    <div class="bg-primary-600 rounded-lg p-12 text-center text-white">
+        <h2 class="text-3xl font-bold mb-4">Ready to Start Earning?</h2>
+        <p class="text-xl mb-8">Join MSK Earning today and start using our services to earn commissions</p>
+        <a href="{% url 'login' %}" class="bg-white text-primary-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition">
+            Get Started Now
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Members</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-100">
+    <!-- Navigation -->
+    <nav class="bg-blue-600 text-white p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold">Admin - Members Management</h1>
+            <div class="flex space-x-4">
+                <a href="/admin-panel/" class="hover:text-blue-200">Dashboard</a>
+                <a href="/admin-panel/plans/" class="hover:text-blue-200">Plans</a>
+                <a href="/admin-panel/members/" class="hover:text-blue-200">Members</a>
+                <a href="/admin-panel/financial/" class="hover:text-blue-200">Financial</a>
+                <a href="/admin-panel/payments/" class="hover:text-blue-200">Payments</a>
+                <a href="/admin" class="hover:text-blue-200">Django Admin</a>
+                <a href="/logout/" class="hover:text-blue-200">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+
+    <div class="container mx-auto p-6">
+        <!-- Filter Section -->
+        <div class="bg-white p-6 rounded-lg shadow mb-6">
+            <h3 class="text-lg font-semibold mb-4">Filter Members</h3>
+            <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                    <select name="status" class="w-full border border-gray-300 rounded-md px-3 py-2">
+                        <option value="">All Status</option>
+                        <option value="Active" {% if status_filter == 'Active' %}selected{% endif %}>Active</option>
+                        <option value="Inactive" {% if status_filter == 'Inactive' %}selected{% endif %}>Inactive</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Position</label>
+                    <select name="position" class="w-full border border-gray-300 rounded-md px-3 py-2">
+                        <option value="">All Positions</option>
+                        <option value="Left" {% if position_filter == 'Left' %}selected{% endif %}>Left</option>
+                        <option value="Right" {% if position_filter == 'Right' %}selected{% endif %}>Right</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Search</label>
+                    <input type="text" name="search" value="{{ search_query }}" placeholder="Name, email, username, mobile"
+                        class="w-full border border-gray-300 rounded-md px-3 py-2">
+                </div>
+                <div class="flex items-end">
+                    <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700">
+                        Filter
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h3 class="text-lg font-semibold text-blue-600">Total Filtered</h3>
+                <p class="text-3xl font-bold">{{ total_filtered }}</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h3 class="text-lg font-semibold text-green-600">Active Members</h3>
+                <p class="text-3xl font-bold">{{ active_filtered }}</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h3 class="text-lg font-semibold text-red-600">Blocked Members</h3>
+                <p class="text-3xl font-bold">{{ blocked_filtered }}</p>
+            </div>
+        </div>
+
+        <!-- Members Table -->
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <div class="px-6 py-4 border-b">
+                <h3 class="text-lg font-semibold">Members List</h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Member</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Contact</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Position</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Sponsor</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Balance</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Joined</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        {% for member in members %}
+                        <tr>
+                            <td class="px-6 py-4">
+                                <div>
+                                    <div class="font-medium text-gray-900">{{ member.user.first_name|default:member.user.username }}</div>
+                                    <div class="text-sm text-gray-500">@{{ member.user.username }}</div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="text-sm text-gray-900">{{ member.user.email }}</div>
+                                <div class="text-sm text-gray-500">{{ member.mobile_no }}</div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="px-2 py-1 text-xs rounded-full {% if member.position == 'Left' %}bg-blue-100 text-blue-800{% else %}bg-green-100 text-green-800{% endif %}">
+                                    {{ member.position }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-900">
+                                {% if member.sponsor %}
+                                    {{ member.sponsor.first_name|default:member.sponsor.username }}
+                                {% else %}
+                                    Root
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-900">
+                                ₹{{ member.account_balance|floatformat:2 }}
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex flex-col space-y-1">
+                                    <span class="px-2 py-1 text-xs rounded-full {% if member.status == 'Active' %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                        {{ member.status }}
+                                    </span>
+                                    {% if member.block %}
+                                    <span class="px-2 py-1 text-xs rounded-full bg-red-100 text-red-800">
+                                        Blocked
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-500">
+                                {{ member.joined_on|date:"M d, Y" }}
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex space-x-2">
+                                    <button onclick="toggleStatus({{ member.id }})" 
+                                        class="text-blue-600 hover:text-blue-900 text-sm">
+                                        {% if member.status == 'Active' %}Deactivate{% else %}Activate{% endif %}
+                                    </button>
+                                    <button onclick="toggleBlock({{ member.id }})" 
+                                        class="{% if member.block %}text-green-600 hover:text-green-900{% else %}text-red-600 hover:text-red-900{% endif %} text-sm">
+                                        {% if member.block %}Unblock{% else %}Block{% endif %}
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="px-6 py-4 text-center text-gray-500">No members found matching the criteria</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleStatus(memberId) {
+            if (confirm('Are you sure you want to toggle this member\'s status?')) {
+                fetch(`/admin-panel/toggle-member-status/${memberId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken'),
+                        'Content-Type': 'application/json',
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                });
+            }
+        }
+
+        function toggleBlock(memberId) {
+            if (confirm('Are you sure you want to toggle this member\'s block status?')) {
+                fetch(`/admin-panel/toggle-member-block/${memberId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken'),
+                        'Content-Type': 'application/json',
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                });
+            }
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+
+
+</body>
+</html>

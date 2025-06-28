@@ -1,0 +1,230 @@
+{% extends 'base.html' %}
+
+{% block title %}Level Income History - {{ site.company }}{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800">Level Income History</h1>
+                <p class="text-gray-600">Income earned from multiple levels of your downline</p>
+            </div>
+            <div class="text-right">
+                <div class="text-3xl font-bold text-blue-600">₹{{ member.level_income|floatformat:2 }}</div>
+                <div class="text-gray-600">Total Level Income</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Level Income Summary -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <div class="flex items-center">
+                <div class="bg-blue-100 rounded-full p-3 mr-4">
+                    <i data-feather="layers" class="w-6 h-6 text-blue-600"></i>
+                </div>
+                <div>
+                    <div class="text-2xl font-bold text-gray-800">₹{{ member.level_income|floatformat:2 }}</div>
+                    <div class="text-gray-600">Total Level Income</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <div class="flex items-center">
+                <div class="bg-green-100 rounded-full p-3 mr-4">
+                    <i data-feather="trending-down" class="w-6 h-6 text-green-600"></i>
+                </div>
+                <div>
+                    <div class="text-2xl font-bold text-gray-800">
+                        {% with left_count=member.count_team_members:'left' right_count=member.count_team_members:'right' %}
+                            {{ left_count.total|add:right_count.total }}
+                        {% endwith %}
+                    </div>
+                    <div class="text-gray-600">Total Downline</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <div class="flex items-center">
+                <div class="bg-purple-100 rounded-full p-3 mr-4">
+                    <i data-feather="calendar" class="w-6 h-6 text-purple-600"></i>
+                </div>
+                <div>
+                    <div class="text-2xl font-bold text-gray-800">{{ history.count }}</div>
+                    <div class="text-gray-600">Level Transactions</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- How Level Income Works -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <h2 class="text-lg font-semibold text-gray-800 mb-6">How Level Income Works</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div>
+                <h3 class="font-semibold text-gray-800 mb-4">Level Structure</h3>
+                <div class="space-y-3">
+                    <div class="flex items-center p-3 bg-blue-50 rounded-lg">
+                        <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-bold mr-3">1</div>
+                        <div>
+                            <div class="font-semibold text-gray-800">Level 1 - Direct Referrals</div>
+                            <div class="text-sm text-gray-600">Your direct team members</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center p-3 bg-green-50 rounded-lg">
+                        <div class="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center text-white text-sm font-bold mr-3">2</div>
+                        <div>
+                            <div class="font-semibold text-gray-800">Level 2 - Second Generation</div>
+                            <div class="text-sm text-gray-600">Referrals of your direct team</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center p-3 bg-purple-50 rounded-lg">
+                        <div class="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center text-white text-sm font-bold mr-3">3+</div>
+                        <div>
+                            <div class="font-semibold text-gray-800">Level 3 and Beyond</div>
+                            <div class="text-sm text-gray-600">Deeper generations in your network</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <h3 class="font-semibold text-gray-800 mb-4">Income Distribution</h3>
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <p class="text-sm text-gray-700 mb-3">
+                        Level income is distributed based on the plan purchased by your downline members. 
+                        Each level has a specific percentage or amount allocated to the upline.
+                    </p>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Level 1:</span>
+                            <span class="font-semibold">Highest percentage</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Level 2:</span>
+                            <span class="font-semibold">Medium percentage</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Level 3+:</span>
+                            <span class="font-semibold">Lower percentages</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if history %}
+    <!-- Level Income History Table -->
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-lg font-semibold text-gray-800">Level Income Transactions</h2>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Level</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for income in history %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ income.created_at|date:"M d, Y H:i" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="text-lg font-bold text-blue-600">₹{{ income.amount|floatformat:2 }}</span>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-900">
+                            {{ income.description|default:"Level income from downline" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                                {% if "Level" in income.description %}
+                                    {{ income.description|slice:":8" }}
+                                {% else %}
+                                    Level Income
+                                {% endif %}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                Credited
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% else %}
+    <!-- Empty State -->
+    <div class="bg-white rounded-lg shadow-lg p-12 text-center">
+        <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <i data-feather="layers" class="w-12 h-12 text-gray-400"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">No Level Income Yet</h2>
+        <p class="text-gray-600 mb-8">You haven't earned any level income yet. Help your team members purchase plans to start earning level income!</p>
+        
+        <div class="space-y-4">
+            <p class="text-gray-700 font-semibold">To earn level income:</p>
+            <div class="max-w-2xl mx-auto text-left bg-gray-50 rounded-lg p-6">
+                <ul class="space-y-2 text-sm text-gray-700">
+                    <li class="flex items-start">
+                        <i data-feather="check" class="w-4 h-4 text-green-600 mr-2 mt-0.5"></i>
+                        Build a strong downline network
+                    </li>
+                    <li class="flex items-start">
+                        <i data-feather="check" class="w-4 h-4 text-green-600 mr-2 mt-0.5"></i>
+                        Help your team members purchase plans
+                    </li>
+                    <li class="flex items-start">
+                        <i data-feather="check" class="w-4 h-4 text-green-600 mr-2 mt-0.5"></i>
+                        Maintain active status in your network
+                    </li>
+                </ul>
+            </div>
+            <div class="space-x-4">
+                <a href="{% url 'level_wise_team' member.id %}" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">
+                    View Level Wise Team
+                </a>
+                <a href="{% url 'dashboard' %}" class="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition">
+                    Go to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Navigation -->
+    <div class="mt-8 flex justify-center space-x-4">
+        <a href="{% url 'direct_income_history' %}" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition">
+            <i data-feather="users" class="w-4 h-4 inline mr-2"></i>
+            Direct Income
+        </a>
+        <a href="{% url 'binary_team_income' %}" class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition">
+            <i data-feather="git-branch" class="w-4 h-4 inline mr-2"></i>
+            Binary Income
+        </a>
+        <a href="{% url 'resale_income_history' %}" class="bg-yellow-600 text-white px-6 py-2 rounded-lg hover:bg-yellow-700 transition">
+            <i data-feather="shopping-cart" class="w-4 h-4 inline mr-2"></i>
+            Service Income
+        </a>
+        <a href="{% url 'dashboard' %}" class="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition">
+            <i data-feather="home" class="w-4 h-4 inline mr-2"></i>
+            Dashboard
+        </a>
+    </div>
+</div>
+{% endblock %}

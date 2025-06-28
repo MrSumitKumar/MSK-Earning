@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+
+{% block title %}Payment Settings - {{ site.company }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-8">
+    <div class="bg-white rounded-lg shadow-lg p-6">
+        <h1 class="text-2xl font-bold text-gray-800 mb-6">Payment Settings</h1>
+        <p class="text-gray-600 mb-8">Update your payment details for withdrawals and transactions</p>
+        
+        <form method="post" class="space-y-8">
+            {% csrf_token %}
+            
+            <!-- UPI Details -->
+            <div class="border-b border-gray-200 pb-8">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                    <i data-feather="smartphone" class="w-5 h-5 text-primary-600 mr-2"></i>
+                    UPI Details
+                </h2>
+                <div class="max-w-md">
+                    <label for="upi_id" class="block text-sm font-medium text-gray-700 mb-2">UPI ID</label>
+                    <input type="text" id="upi_id" name="upi_id" value="{{ member.upi_id|default:'' }}" 
+                           placeholder="yourname@paytm, yourname@phonepe, etc."
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                    <p class="mt-1 text-sm text-gray-500">Enter your UPI ID for instant transfers</p>
+                </div>
+            </div>
+
+            <!-- Bank Details -->
+            <div>
+                <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                    <i data-feather="home" class="w-5 h-5 text-primary-600 mr-2"></i>
+                    Bank Account Details
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="bank_name" class="block text-sm font-medium text-gray-700 mb-2">Bank Name</label>
+                        <input type="text" id="bank_name" name="bank_name" value="{{ member.bank_name|default:'' }}" 
+                               placeholder="State Bank of India"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                    </div>
+                    <div>
+                        <label for="bank_account" class="block text-sm font-medium text-gray-700 mb-2">Account Number</label>
+                        <input type="text" id="bank_account" name="bank_account" value="{{ member.bank_account|default:'' }}" 
+                               placeholder="1234567890123456"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="bank_ifsc" class="block text-sm font-medium text-gray-700 mb-2">IFSC Code</label>
+                        <input type="text" id="bank_ifsc" name="bank_ifsc" value="{{ member.bank_ifsc|default:'' }}" 
+                               placeholder="SBIN0001234" maxlength="11" style="text-transform: uppercase;"
+                               class="w-full max-w-xs px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                        <p class="mt-1 text-sm text-gray-500">11-character IFSC code of your bank branch</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Current Details Summary -->
+            {% if member.upi_id or member.bank_account %}
+            <div class="bg-gray-50 rounded-lg p-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Current Payment Details</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {% if member.upi_id %}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Current UPI ID</label>
+                        <p class="mt-1 text-sm text-gray-900 font-mono">{{ member.upi_id }}</p>
+                    </div>
+                    {% endif %}
+                    {% if member.bank_account %}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Current Bank Account</label>
+                        <p class="mt-1 text-sm text-gray-900">
+                            {{ member.bank_name }}<br>
+                            {{ member.bank_account }}<br>
+                            IFSC: {{ member.bank_ifsc }}
+                        </p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Important Notes -->
+            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <div class="flex">
+                    <i data-feather="alert-triangle" class="w-5 h-5 text-yellow-600 mr-2 mt-0.5"></i>
+                    <div class="text-sm text-yellow-800">
+                        <p class="font-medium mb-2">Important Notes:</p>
+                        <ul class="space-y-1 list-disc list-inside">
+                            <li>Ensure all details are accurate to avoid payment failures</li>
+                            <li>Bank account should be in your name only</li>
+                            <li>UPI ID should be active and verified</li>
+                            <li>Contact support if you need to change registered mobile number</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Buttons -->
+            <div class="flex flex-wrap gap-4 pt-6">
+                <button type="submit" class="bg-primary-600 text-white px-6 py-2 rounded-lg hover:bg-primary-700 transition">
+                    <i data-feather="save" class="w-4 h-4 inline mr-2"></i>
+                    Save Payment Details
+                </button>
+                <a href="{% url 'profile' %}" class="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition">
+                    Cancel
+                </a>
+                <a href="{% url 'wallet' %}" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition">
+                    <i data-feather="credit-card" class="w-4 h-4 inline mr-2"></i>
+                    Go to Wallet
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Help Section -->
+    <div class="mt-8 bg-white rounded-lg shadow-lg p-6">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">Need Help?</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <h3 class="font-semibold text-gray-800 mb-2">UPI Setup</h3>
+                <p class="text-sm text-gray-600 mb-3">
+                    Your UPI ID can be found in your UPI app (PhonePe, Paytm, Google Pay, etc.). 
+                    It usually ends with @paytm, @phonepe, @okaxis, etc.
+                </p>
+            </div>
+            <div>
+                <h3 class="font-semibold text-gray-800 mb-2">IFSC Code</h3>
+                <p class="text-sm text-gray-600 mb-3">
+                    You can find your bank's IFSC code on your checkbook, passbook, or by searching 
+                    online with your bank name and branch.
+                </p>
+            </div>
+        </div>
+        <div class="mt-4 text-center">
+            <a href="{% url 'contact' %}" class="text-primary-600 hover:text-primary-700 text-sm font-medium">
+                Contact Support for Help →
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto-uppercase IFSC code
+document.getElementById('bank_ifsc').addEventListener('input', function(e) {
+    this.value = this.value.toUpperCase();
+});
+
+// Account number validation (numbers only)
+document.getElementById('bank_account').addEventListener('input', function(e) {
+    this.value = this.value.replace(/[^0-9]/g, '');
+});
+</script>
+{% endblock %}

@@ -1,0 +1,272 @@
+{% extends 'base.html' %}
+
+{% block title %}Referral Links - EWE MLM{% endblock %}
+
+{% block content %}
+<div class="px-4 sm:px-6 lg:px-8">
+    <!-- Page header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">Your Referral Links</h1>
+        <p class="mt-2 text-gray-600">Share these links to build your left and right teams and earn commissions</p>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-users text-2xl text-blue-600"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Left Team Members</dt>
+                            <dd class="text-lg font-medium text-gray-900">0</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-users text-2xl text-green-600"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Right Team Members</dt>
+                            <dd class="text-lg font-medium text-gray-900">0</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-handshake text-2xl text-purple-600"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">Total Referrals</dt>
+                            <dd class="text-lg font-medium text-gray-900">{{ member.total_directs }}</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Referral Links Cards -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <!-- Left Team Referral Link -->
+        <div class="bg-gradient-to-br from-blue-50 to-indigo-100 border border-blue-200 rounded-lg p-6">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center">
+                    <div class="bg-blue-600 rounded-full p-2 mr-3">
+                        <i class="fas fa-arrow-left text-white"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-blue-900">Left Team Referral</h3>
+                </div>
+                <span class="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium">LEFT</span>
+            </div>
+            
+            <p class="text-blue-700 mb-4">Share this link to add members to your left team and earn direct commissions!</p>
+            
+            <div class="bg-white rounded-lg p-4 border border-blue-300">
+                <label class="block text-sm font-medium text-blue-700 mb-2">Your Left Team Referral Link:</label>
+                <div class="flex items-center space-x-2">
+                    <input type="text" 
+                           value="{{ left_referral_link }}" 
+                           id="leftLink"
+                           class="flex-1 px-3 py-2 border border-blue-300 rounded-md bg-blue-50 text-blue-900 text-sm"
+                           readonly>
+                    <button onclick="copyLink('leftLink')" 
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                        <i class="fas fa-copy mr-1"></i> Copy
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Share buttons -->
+            <div class="mt-4 flex space-x-2">
+                <a href="https://wa.me/?text=Join my team! {{ left_referral_link }}" 
+                   target="_blank"
+                   class="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-md text-sm font-medium">
+                    <i class="fab fa-whatsapp mr-1"></i> WhatsApp
+                </a>
+                <a href="https://t.me/share/url?url={{ left_referral_link }}&text=Join my MLM team!" 
+                   target="_blank"
+                   class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-md text-sm font-medium">
+                    <i class="fab fa-telegram mr-1"></i> Telegram
+                </a>
+                <button onclick="shareViaEmail('left')" 
+                        class="bg-gray-600 hover:bg-gray-700 text-white px-3 py-2 rounded-md text-sm font-medium">
+                    <i class="fas fa-envelope mr-1"></i> Email
+                </button>
+            </div>
+        </div>
+
+        <!-- Right Team Referral Link -->
+        <div class="bg-gradient-to-br from-green-50 to-emerald-100 border border-green-200 rounded-lg p-6">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center">
+                    <div class="bg-green-600 rounded-full p-2 mr-3">
+                        <i class="fas fa-arrow-right text-white"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-green-900">Right Team Referral</h3>
+                </div>
+                <span class="bg-green-600 text-white px-3 py-1 rounded-full text-sm font-medium">RIGHT</span>
+            </div>
+            
+            <p class="text-green-700 mb-4">Share this link to add members to your right team and build balanced teams!</p>
+            
+            <div class="bg-white rounded-lg p-4 border border-green-300">
+                <label class="block text-sm font-medium text-green-700 mb-2">Your Right Team Referral Link:</label>
+                <div class="flex items-center space-x-2">
+                    <input type="text" 
+                           value="{{ right_referral_link }}" 
+                           id="rightLink"
+                           class="flex-1 px-3 py-2 border border-green-300 rounded-md bg-green-50 text-green-900 text-sm"
+                           readonly>
+                    <button onclick="copyLink('rightLink')" 
+                            class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                        <i class="fas fa-copy mr-1"></i> Copy
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Share buttons -->
+            <div class="mt-4 flex space-x-2">
+                <a href="https://wa.me/?text=Join my team! {{ right_referral_link }}" 
+                   target="_blank"
+                   class="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-md text-sm font-medium">
+                    <i class="fab fa-whatsapp mr-1"></i> WhatsApp
+                </a>
+                <a href="https://t.me/share/url?url={{ right_referral_link }}&text=Join my MLM team!" 
+                   target="_blank"
+                   class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-md text-sm font-medium">
+                    <i class="fab fa-telegram mr-1"></i> Telegram
+                </a>
+                <button onclick="shareViaEmail('right')" 
+                        class="bg-gray-600 hover:bg-gray-700 text-white px-3 py-2 rounded-md text-sm font-medium">
+                    <i class="fas fa-envelope mr-1"></i> Email
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Tips -->
+    <div class="bg-white shadow rounded-lg mb-8">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">💡 Pro Tips for Team Building</h3>
+        </div>
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h4 class="font-semibold text-gray-900 mb-2">🎯 Strategic Placement</h4>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>• Balance your left and right teams for maximum matching bonuses</li>
+                        <li>• Focus on quality referrals who will build their own teams</li>
+                        <li>• Help new members get started with plan selection</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-gray-900 mb-2">💬 Effective Sharing</h4>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>• Share on social media and messaging apps</li>
+                        <li>• Explain the benefits and earning potential</li>
+                        <li>• Provide support to new team members</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Referrals -->
+    <div class="bg-white shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">Recent Team Additions</h3>
+        </div>
+        <div class="p-6">
+            <div class="text-center py-8">
+                <i class="fas fa-users text-4xl text-gray-300 mb-4"></i>
+                <h4 class="text-lg font-medium text-gray-900 mb-2">Start Building Your Team!</h4>
+                <p class="text-gray-500 mb-4">Share your referral links to see your new team members here.</p>
+                <a href="#" 
+                   class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-secondary">
+                    <i class="fas fa-sitemap mr-2"></i>
+                    View Team Structure
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript for copy functionality -->
+<script>
+function copyLink(inputId) {
+    const input = document.getElementById(inputId);
+    input.select();
+    input.setSelectionRange(0, 99999); // For mobile devices
+    
+    navigator.clipboard.writeText(input.value).then(function() {
+        showNotification('Link copied to clipboard!', 'success');
+    }, function(err) {
+        // Fallback for older browsers
+        document.execCommand('copy');
+        showNotification('Link copied to clipboard!', 'success');
+    });
+}
+
+function shareViaEmail(position) {
+    const link = position === 'left' ? '{{ left_referral_link }}' : '{{ right_referral_link }}';
+    const subject = encodeURIComponent('Join My MLM Team - ' + position.charAt(0).toUpperCase() + position.slice(1) + ' Position');
+    const body = encodeURIComponent(`Hi there!\n\nI'd like to invite you to join my MLM team in the ${position} position.\n\nJoin here: ${link}\n\nThis is a great opportunity to earn passive income and build your own team!\n\nBest regards,\n{{ user.first_name }}`);
+    
+    window.location.href = `mailto:?subject=${subject}&body=${body}`;
+}
+
+function showNotification(message, type) {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 max-w-sm w-full bg-white shadow-lg rounded-lg pointer-events-auto ring-1 ring-black ring-opacity-5 z-50 transform transition-all duration-300 translate-x-full`;
+    
+    const bgColor = type === 'success' ? 'bg-green-50 border-green-400 text-green-800' : 'bg-blue-50 border-blue-400 text-blue-800';
+    
+    notification.innerHTML = `
+        <div class="p-4 ${bgColor} border-l-4 rounded">
+            <div class="flex items-center">
+                <div class="flex-1">
+                    <p class="text-sm font-medium">${message}</p>
+                </div>
+                <button onclick="this.parentElement.parentElement.parentElement.remove()" class="ml-4 text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Animate in
+    setTimeout(() => {
+        notification.classList.remove('translate-x-full');
+    }, 100);
+    
+    // Auto remove after 3 seconds
+    setTimeout(() => {
+        notification.classList.add('translate-x-full');
+        setTimeout(() => {
+            if (notification.parentElement) {
+                notification.remove();
+            }
+        }, 300);
+    }, 3000);
+}
+</script>
+{% endblock %}

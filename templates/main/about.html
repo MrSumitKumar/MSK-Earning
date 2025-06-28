@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{% block title %}About Us - {{ site.company }}{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-12">
+    <!-- Hero Section -->
+    <div class="text-center mb-16">
+        <h1 class="text-4xl font-bold text-gray-800 mb-6">About {{ site.company }}</h1>
+        <p class="text-xl text-gray-600 max-w-3xl mx-auto">{{ site.tagline }}</p>
+    </div>
+
+    <!-- About Content -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
+        <div>
+            <h2 class="text-3xl font-bold text-gray-800 mb-6">Our Story</h2>
+            <div class="prose prose-lg text-gray-600">
+                <p>{{ site.about }}</p>
+                
+                <p>Founded with a vision to democratize earning opportunities, MSK Earning leverages cutting-edge technology to provide a transparent, efficient, and rewarding platform for individuals seeking financial independence.</p>
+                
+                <p>Our innovative approach combines traditional MLM principles with modern digital services, creating multiple revenue streams for our members while maintaining the highest standards of integrity and transparency.</p>
+            </div>
+        </div>
+        <div class="bg-primary-50 rounded-lg p-8">
+            <h3 class="text-2xl font-bold text-gray-800 mb-6">Our Mission</h3>
+            <ul class="space-y-4">
+                <li class="flex items-start">
+                    <i data-feather="target" class="w-6 h-6 text-primary-600 mr-3 mt-1"></i>
+                    <span class="text-gray-700">Empower individuals to achieve financial independence</span>
+                </li>
+                <li class="flex items-start">
+                    <i data-feather="users" class="w-6 h-6 text-primary-600 mr-3 mt-1"></i>
+                    <span class="text-gray-700">Build a supportive community of entrepreneurs</span>
+                </li>
+                <li class="flex items-start">
+                    <i data-feather="trending-up" class="w-6 h-6 text-primary-600 mr-3 mt-1"></i>
+                    <span class="text-gray-700">Provide sustainable and scalable income opportunities</span>
+                </li>
+                <li class="flex items-start">
+                    <i data-feather="shield" class="w-6 h-6 text-primary-600 mr-3 mt-1"></i>
+                    <span class="text-gray-700">Maintain transparency and ethical business practices</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Features Grid -->
+    <div class="mb-16">
+        <h2 class="text-3xl font-bold text-gray-800 text-center mb-12">What Makes Us Different</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="bg-primary-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                    <i data-feather="git-branch" class="w-8 h-8 text-primary-600"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-800 mb-4 text-center">Binary Tree System</h3>
+                <p class="text-gray-600 text-center">Advanced binary tree structure with visual representation and automatic placement algorithms.</p>
+            </div>
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="bg-primary-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                    <i data-feather="smartphone" class="w-8 h-8 text-primary-600"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-800 mb-4 text-center">Service Integration</h3>
+                <p class="text-gray-600 text-center">Integrated mobile recharge and utility services providing additional earning opportunities.</p>
+            </div>
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="bg-primary-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                    <i data-feather="award" class="w-8 h-8 text-primary-600"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-800 mb-4 text-center">Rank & Rewards</h3>
+                <p class="text-gray-600 text-center">Automatic rank progression system with milestone-based rewards and recognition.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Values Section -->
+    <div class="bg-gray-100 rounded-lg p-12">
+        <h2 class="text-3xl font-bold text-gray-800 text-center mb-12">Our Core Values</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div class="text-center">
+                <div class="bg-primary-600 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                    <i data-feather="heart" class="w-8 h-8 text-white"></i>
+                </div>
+                <h3 class="font-semibold text-gray-800 mb-2">Integrity</h3>
+                <p class="text-gray-600 text-sm">We operate with honesty and transparency in all our dealings.</p>
+            </div>
+            <div class="text-center">
+                <div class="bg-primary-600 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                    <i data-feather="zap" class="w-8 h-8 text-white"></i>
+                </div>
+                <h3 class="font-semibold text-gray-800 mb-2">Innovation</h3>
+                <p class="text-gray-600 text-sm">We continuously evolve to provide cutting-edge solutions.</p>
+            </div>
+            <div class="text-center">
+                <div class="bg-primary-600 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                    <i data-feather="users" class="w-8 h-8 text-white"></i>
+                </div>
+                <h3 class="font-semibold text-gray-800 mb-2">Community</h3>
+                <p class="text-gray-600 text-sm">We believe in the power of community and mutual support.</p>
+            </div>
+            <div class="text-center">
+                <div class="bg-primary-600 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                    <i data-feather="star" class="w-8 h-8 text-white"></i>
+                </div>
+                <h3 class="font-semibold text-gray-800 mb-2">Excellence</h3>
+                <p class="text-gray-600 text-sm">We strive for excellence in everything we do.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

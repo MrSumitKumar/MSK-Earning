@@ -1,0 +1,320 @@
+{% extends 'base.html' %}
+
+{% block title %}Payment Request - {{ site.company }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800">Request Payment</h1>
+                <p class="text-gray-600">Submit a withdrawal request for admin approval</p>
+            </div>
+            <div class="text-right">
+                <div class="text-3xl font-bold text-primary-600">₹{{ member.wallet_balance|floatformat:2 }}</div>
+                <div class="text-gray-600">Available Balance</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Payment Request Form -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-6">Withdrawal Request Form</h2>
+            
+            <form method="post" action="{% url 'create_payment_request' %}" class="space-y-6">
+                {% csrf_token %}
+                
+                <!-- Request Type -->
+                <div>
+                    <label for="request_type" class="block text-sm font-medium text-gray-700 mb-2">Payment Method</label>
+                    <select id="request_type" name="request_type" required onchange="togglePaymentFields()"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                        <option value="bank_transfer">Bank Transfer</option>
+                        <option value="upi_transfer">UPI Transfer</option>
+                    </select>
+                </div>
+
+                <!-- Amount -->
+                <div>
+                    <label for="amount" class="block text-sm font-medium text-gray-700 mb-2">Withdrawal Amount</label>
+                    <input type="number" id="amount" name="amount" required min="{{ minimum_withdrawal }}" 
+                           max="{{ member.wallet_balance }}" step="1" onchange="checkBalance()"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" 
+                           placeholder="Enter amount (Min: ₹{{ minimum_withdrawal }})">
+                    <div id="balance-check" class="mt-2 text-sm"></div>
+                </div>
+
+                <!-- Quick Amount Buttons -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Quick Amount</label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button type="button" onclick="setAmount(500)" class="bg-gray-100 hover:bg-gray-200 text-gray-800 py-2 rounded-md transition">₹500</button>
+                        <button type="button" onclick="setAmount(1000)" class="bg-gray-100 hover:bg-gray-200 text-gray-800 py-2 rounded-md transition">₹1000</button>
+                        <button type="button" onclick="setAmount(2000)" class="bg-gray-100 hover:bg-gray-200 text-gray-800 py-2 rounded-md transition">₹2000</button>
+                        <button type="button" onclick="setAmount(5000)" class="bg-gray-100 hover:bg-gray-200 text-gray-800 py-2 rounded-md transition">₹5000</button>
+                        <button type="button" onclick="setAmount(10000)" class="bg-gray-100 hover:bg-gray-200 text-gray-800 py-2 rounded-md transition">₹10000</button>
+                        <button type="button" onclick="setAmount({{ member.wallet_balance|floatformat:0 }})" class="bg-primary-100 hover:bg-primary-200 text-primary-800 py-2 rounded-md transition">All</button>
+                    </div>
+                </div>
+
+                <!-- Bank Details -->
+                <div id="bank-fields" class="space-y-4">
+                    <h3 class="text-lg font-semibold text-gray-800">Bank Details</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="bank_name" class="block text-sm font-medium text-gray-700 mb-2">Bank Name</label>
+                            <input type="text" id="bank_name" name="bank_name" 
+                                   value="{% if bank_details %}{{ bank_details.bank_name }}{% endif %}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" 
+                                   placeholder="Enter bank name">
+                        </div>
+                        
+                        <div>
+                            <label for="account_holder_name" class="block text-sm font-medium text-gray-700 mb-2">Account Holder Name</label>
+                            <input type="text" id="account_holder_name" name="account_holder_name" 
+                                   value="{{ member.user.first_name }} {{ member.user.last_name }}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" 
+                                   placeholder="Account holder name">
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="account_number" class="block text-sm font-medium text-gray-700 mb-2">Account Number</label>
+                            <input type="text" id="account_number" name="account_number" 
+                                   value="{% if bank_details %}{{ bank_details.bank_account }}{% endif %}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" 
+                                   placeholder="Enter account number">
+                        </div>
+                        
+                        <div>
+                            <label for="ifsc_code" class="block text-sm font-medium text-gray-700 mb-2">IFSC Code</label>
+                            <input type="text" id="ifsc_code" name="ifsc_code" 
+                                   value="{% if bank_details %}{{ bank_details.bank_ifsc }}{% endif %}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" 
+                                   placeholder="Enter IFSC code">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- UPI Details -->
+                <div id="upi-fields" class="space-y-4 hidden">
+                    <h3 class="text-lg font-semibold text-gray-800">UPI Details</h3>
+                    
+                    <div>
+                        <label for="upi_id" class="block text-sm font-medium text-gray-700 mb-2">UPI ID</label>
+                        <input type="text" id="upi_id" name="upi_id" 
+                               value="{% if bank_details %}{{ bank_details.upi_id }}{% endif %}"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" 
+                               placeholder="yourname@paytm">
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div>
+                    <label for="description" class="block text-sm font-medium text-gray-700 mb-2">Description (Optional)</label>
+                    <textarea id="description" name="description" rows="3"
+                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500" 
+                              placeholder="Add any additional notes..."></textarea>
+                </div>
+
+                <!-- Terms & Conditions -->
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <div class="flex items-start">
+                        <i data-feather="info" class="w-5 h-5 text-yellow-600 mr-2 mt-0.5"></i>
+                        <div class="text-sm text-yellow-800">
+                            <p class="font-medium mb-2">Important Terms:</p>
+                            <ul class="space-y-1 list-disc list-inside">
+                                <li>Minimum withdrawal amount is ₹{{ minimum_withdrawal }}</li>
+                                <li>Processing time: 24-48 hours after approval</li>
+                                <li>All requests are subject to admin verification</li>
+                                <li>Ensure bank details are correct to avoid delays</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" id="submit-btn" class="w-full bg-primary-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-primary-700 transition">
+                    <i data-feather="send" class="w-5 h-5 inline mr-2"></i>
+                    Submit Payment Request
+                </button>
+            </form>
+        </div>
+
+        <!-- Information Panel -->
+        <div class="space-y-6">
+            <!-- Account Summary -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-lg font-bold text-gray-800 mb-4">Account Summary</h3>
+                <div class="space-y-3">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Account Balance:</span>
+                        <span class="font-semibold">₹{{ member.wallet_balance|floatformat:2 }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Total Income:</span>
+                        <span class="font-semibold">₹{{ member.total_income|floatformat:2 }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Total Withdrawals:</span>
+                        <span class="font-semibold">₹{{ member.total_withdrawal|floatformat:2 }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Wallet Balance:</span>
+                        <span class="font-semibold">₹{{ member.wallet_balance|floatformat:2 }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Process Flow -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-lg font-bold text-gray-800 mb-4">Payment Process</h3>
+                <div class="space-y-4">
+                    <div class="flex items-start">
+                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                            <span class="text-blue-600 font-bold text-sm">1</span>
+                        </div>
+                        <div>
+                            <div class="font-semibold text-gray-800">Submit Request</div>
+                            <div class="text-sm text-gray-600">Fill form and submit payment request</div>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center mr-3">
+                            <span class="text-yellow-600 font-bold text-sm">2</span>
+                        </div>
+                        <div>
+                            <div class="font-semibold text-gray-800">Admin Review</div>
+                            <div class="text-sm text-gray-600">Admin verifies and approves request</div>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                            <span class="text-green-600 font-bold text-sm">3</span>
+                        </div>
+                        <div>
+                            <div class="font-semibold text-gray-800">Payment Processed</div>
+                            <div class="text-sm text-gray-600">Amount transferred to your account</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Requests -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-bold text-gray-800">Recent Requests</h3>
+                    <a href="{% url 'payment_requests_history' %}" class="text-primary-600 hover:text-primary-700 text-sm font-medium">View All</a>
+                </div>
+                
+                <div class="space-y-3">
+                    {% for request in member.payment_requests.all|slice:":3" %}
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div>
+                            <div class="font-semibold text-gray-800">₹{{ request.amount|floatformat:0 }}</div>
+                            <div class="text-sm text-gray-600">{{ request.request_date|date:"M d, H:i" }}</div>
+                        </div>
+                        <div>
+                            <span class="px-2 py-1 rounded-full text-xs font-semibold 
+                                {% if request.status == 'pending' %}bg-yellow-100 text-yellow-800
+                                {% elif request.status == 'approved' %}bg-blue-100 text-blue-800
+                                {% elif request.status == 'completed' %}bg-green-100 text-green-800
+                                {% else %}bg-red-100 text-red-800{% endif %}">
+                                {{ request.status|title }}
+                            </span>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center text-gray-500 py-4">
+                        No payment requests yet
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Set amount from quick buttons
+function setAmount(amount) {
+    document.getElementById('amount').value = amount;
+    checkBalance();
+}
+
+// Toggle payment method fields
+function togglePaymentFields() {
+    const requestType = document.getElementById('request_type').value;
+    const bankFields = document.getElementById('bank-fields');
+    const upiFields = document.getElementById('upi-fields');
+    
+    if (requestType === 'upi_transfer') {
+        bankFields.classList.add('hidden');
+        upiFields.classList.remove('hidden');
+        
+        // Make UPI required, bank optional
+        document.getElementById('upi_id').required = true;
+        document.getElementById('bank_name').required = false;
+        document.getElementById('account_number').required = false;
+        document.getElementById('ifsc_code').required = false;
+        document.getElementById('account_holder_name').required = false;
+    } else {
+        bankFields.classList.remove('hidden');
+        upiFields.classList.add('hidden');
+        
+        // Make bank required, UPI optional
+        document.getElementById('upi_id').required = false;
+        document.getElementById('bank_name').required = true;
+        document.getElementById('account_number').required = true;
+        document.getElementById('ifsc_code').required = true;
+        document.getElementById('account_holder_name').required = true;
+    }
+}
+
+// Check balance availability
+function checkBalance() {
+    const amount = parseFloat(document.getElementById('amount').value) || 0;
+    const accountBalance = {{ member.wallet_balance }};
+    const balanceCheck = document.getElementById('balance-check');
+    const submitBtn = document.getElementById('submit-btn');
+    
+    if (amount < {{ minimum_withdrawal }}) {
+        balanceCheck.innerHTML = '<span class="text-red-600">Minimum withdrawal amount is ₹{{ minimum_withdrawal }}</span>';
+        submitBtn.disabled = true;
+        submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+    } else if (amount > accountBalance) {
+        balanceCheck.innerHTML = '<span class="text-red-600">Amount exceeds available balance</span>';
+        submitBtn.disabled = true;
+        submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+    } else {
+        const remaining = accountBalance - amount;
+        balanceCheck.innerHTML = `<span class="text-green-600">✓ Valid amount. Remaining balance: ₹${remaining.toFixed(2)}</span>`;
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+    }
+}
+
+// Form validation
+document.querySelector('form').addEventListener('submit', function(e) {
+    const amount = parseFloat(document.getElementById('amount').value);
+    const accountBalance = {{ member.wallet_balance }};
+    
+    if (amount < {{ minimum_withdrawal }} || amount > accountBalance) {
+        e.preventDefault();
+        alert('Please enter a valid withdrawal amount.');
+        return;
+    }
+    
+    if (!confirm(`Confirm withdrawal request of ₹${amount}?`)) {
+        e.preventDefault();
+    }
+});
+
+// Initialize
+togglePaymentFields();
+</script>
+{% endblock %}

@@ -1,0 +1,438 @@
+{% extends 'base.html' %}
+
+{% block title %}Genealogy Tree - {{ site.company }}{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800">Binary Genealogy Tree</h1>
+                <p class="text-gray-600">{{ member.user.first_name|default:member.user.username }}'s Network Structure</p>
+            </div>
+            <div class="text-right">
+                <div class="text-3xl font-bold text-primary-600">{{ member.all_matching_pairs }}</div>
+                <div class="text-gray-600">Matching Pairs</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tree Controls -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center space-x-4">
+                <button id="expandAll" class="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition">
+                    <i data-feather="maximize" class="w-4 h-4 inline mr-2"></i>
+                    Expand All
+                </button>
+                <button id="collapseAll" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition">
+                    <i data-feather="minimize" class="w-4 h-4 inline mr-2"></i>
+                    Collapse All
+                </button>
+                <button id="resetView" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+                    <i data-feather="refresh-cw" class="w-4 h-4 inline mr-2"></i>
+                    Reset View
+                </button>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="flex items-center">
+                    <div class="w-4 h-4 bg-green-500 rounded-full mr-2"></div>
+                    <span class="text-sm text-gray-600">Active</span>
+                </div>
+                <div class="flex items-center">
+                    <div class="w-4 h-4 bg-yellow-500 rounded-full mr-2"></div>
+                    <span class="text-sm text-gray-600">Inactive</span>
+                </div>
+                <div class="flex items-center">
+                    <div class="w-4 h-4 bg-gray-300 rounded-full mr-2"></div>
+                    <span class="text-sm text-gray-600">Empty</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tree Container -->
+    <div class="bg-white rounded-lg shadow-lg p-6">
+        <div id="genealogy-tree" class="overflow-auto" style="min-height: 600px;">
+            <!-- Tree will be rendered here by JavaScript -->
+            <div class="flex justify-center items-center h-96">
+                <div class="text-center">
+                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
+                    <p class="text-gray-600">Loading genealogy tree...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Member Details Modal -->
+    <div id="memberModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg max-w-md w-full p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800">Member Details</h3>
+                    <button id="closeModal" class="text-gray-500 hover:text-gray-700">
+                        <i data-feather="x" class="w-6 h-6"></i>
+                    </button>
+                </div>
+                <div id="memberDetails">
+                    <!-- Member details will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Legend and Info -->
+    <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+        <!-- Tree Legend -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Tree Legend</h3>
+            <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 bg-green-500 rounded-lg mr-3 flex items-center justify-center">
+                            <i data-feather="user" class="w-4 h-4 text-white"></i>
+                        </div>
+                        <span class="text-gray-700">Active Members</span>
+                    </div>
+                    <div class="text-green-600 text-sm">
+                        Left: {{ left_active }} | Right: {{ right_active }}
+                    </div>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 bg-yellow-500 rounded-lg mr-3 flex items-center justify-center">
+                            <i data-feather="user" class="w-4 h-4 text-white"></i>
+                        </div>
+                        <span class="text-gray-700">Inactive Members</span>
+                    </div>
+                    <div class="text-yellow-600 text-sm">
+                        Left: {{ left_inactive }} | Right: {{ right_inactive }}
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <div class="w-8 h-8 border-2 border-dashed border-gray-300 rounded-lg mr-3 flex items-center justify-center">
+                        <i data-feather="plus" class="w-4 h-4 text-gray-400"></i>
+                    </div>
+                    <span class="text-gray-700">Empty Position</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Quick Stats</h3>
+            <div class="space-y-3">
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Left Team (Total):</span>
+                    <span class="font-semibold">{{ left_count|default:"0" }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Right Team (Total):</span>
+                    <span class="font-semibold">{{ right_count|default:"0" }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Matching Pairs:</span>
+                    <span class="font-semibold text-primary-600">{{ member.matching_pairs }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Current Rank:</span>
+                    <span class="font-semibold">{{ member.rank_no }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Navigation -->
+    <div class="mt-8 flex justify-center space-x-4">
+        <a href="{% url 'left_team' member.id %}" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
+            <i data-feather="arrow-left" class="w-4 h-4 inline mr-2"></i>
+            Left Team
+        </a>
+        <a href="{% url 'right_team' member.id %}" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition">
+            <i data-feather="arrow-right" class="w-4 h-4 inline mr-2"></i>
+            Right Team
+        </a>
+        <a href="{% url 'level_wise_team' member.id %}" class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition">
+            <i data-feather="layers" class="w-4 h-4 inline mr-2"></i>
+            Level View
+        </a>
+        <a href="{% url 'dashboard' %}" class="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition">
+            <i data-feather="home" class="w-4 h-4 inline mr-2"></i>
+            Dashboard
+        </a>
+    </div>
+</div>
+
+<style>
+.tree-node {
+    position: relative;
+    display: inline-block;
+    text-align: center;
+    margin: 10px;
+}
+
+.tree-node .node-card {
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 12px;
+    min-width: 120px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.tree-node .node-card:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    transform: translateY(-2px);
+}
+
+.tree-node.active .node-card {
+    border-color: #22c55e;
+    background: #f0fdf4;
+}
+
+.tree-node.inactive .node-card {
+    border-color: #eab308;
+    background: #fefce8;
+}
+
+.tree-node.empty .node-card {
+    border: 2px dashed #d1d5db;
+    background: #f9fafb;
+}
+
+.tree-connections {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: -1;
+}
+
+.tree-level {
+    margin: 40px 0;
+    text-align: center;
+}
+
+.tree-children {
+    display: flex;
+    justify-content: center;
+    margin-top: 40px;
+}
+
+.node-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin: 0 auto 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: white;
+}
+
+.node-name {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.node-username {
+    font-size: 12px;
+    color: #6b7280;
+    margin-bottom: 4px;
+}
+
+.node-status {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 500;
+}
+</style>
+
+<script>
+// Global variables
+let treeData = null;
+
+// Fetch tree data
+async function loadTreeData() {
+    try {
+        const response = await fetch(`{% url 'genealogy_tree_data' member.id %}`);
+        if (!response.ok) throw new Error('Failed to load tree data');
+        treeData = await response.json();
+        renderTree();
+    } catch (error) {
+        console.error('Error loading tree data:', error);
+        document.getElementById('genealogy-tree').innerHTML = `
+            <div class="text-center py-12">
+                <div class="text-red-600 mb-4">
+                    <i data-feather="alert-circle" class="w-12 h-12 mx-auto"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">Error Loading Tree</h3>
+                <p class="text-gray-600">Failed to load genealogy tree data. Please refresh the page.</p>
+            </div>
+        `;
+        feather.replace();
+    }
+}
+
+// Render the tree
+function renderTree() {
+    if (!treeData) return;
+    
+    const container = document.getElementById('genealogy-tree');
+    container.innerHTML = '';
+    
+    const treeElement = createTreeNode(treeData, 0);
+    container.appendChild(treeElement);
+    
+    // Re-initialize Feather icons
+    feather.replace();
+}
+
+// Create a tree node
+function createTreeNode(nodeData, level) {
+    const nodeDiv = document.createElement('div');
+    nodeDiv.className = 'tree-level';
+    
+    const nodeCard = document.createElement('div');
+    nodeCard.className = `tree-node ${nodeData ? nodeData.status.toLowerCase() : 'empty'}`;
+    
+    if (nodeData) {
+        nodeCard.innerHTML = `
+            <div class="node-card" onclick="showMemberDetails(${JSON.stringify(nodeData).replace(/"/g, '&quot;')})">
+                <div class="node-avatar" style="background-color: ${nodeData.status === 'Active' ? '#22c55e' : '#eab308'}">
+                    ${nodeData.name ? nodeData.name.charAt(0).toUpperCase() : 'U'}
+                </div>
+                <div class="node-name">${nodeData.name || 'Unknown'}</div>
+                <div class="node-username">${nodeData.username}</div>
+                <div class="node-status" style="background-color: ${nodeData.status === 'Active' ? '#dcfce7' : '#fef3c7'}; color: ${nodeData.status === 'Active' ? '#166534' : '#92400e'}">
+                    ${nodeData.status}
+                </div>
+            </div>
+        `;
+    } else {
+        nodeCard.innerHTML = `
+            <div class="node-card">
+                <div class="node-avatar" style="background-color: #d1d5db;">
+                    <i data-feather="plus" class="w-4 h-4"></i>
+                </div>
+                <div class="node-name">Empty</div>
+                <div class="node-username">Available</div>
+                <div class="node-status" style="background-color: #f3f4f6; color: #6b7280">
+                    Position
+                </div>
+            </div>
+        `;
+    }
+    
+    nodeDiv.appendChild(nodeCard);
+    
+    // Add children if they exist and level is less than 3 (to prevent too deep trees)
+    if (level < 3 && ((nodeData && (nodeData.left || nodeData.right)) || (!nodeData))) {
+        const childrenDiv = document.createElement('div');
+        childrenDiv.className = 'tree-children';
+        
+        // Left child
+        const leftChild = createTreeNode(nodeData ? nodeData.left : null, level + 1);
+        leftChild.style.marginRight = '20px';
+        childrenDiv.appendChild(leftChild);
+        
+        // Right child
+        const rightChild = createTreeNode(nodeData ? nodeData.right : null, level + 1);
+        rightChild.style.marginLeft = '20px';
+        childrenDiv.appendChild(rightChild);
+        
+        nodeDiv.appendChild(childrenDiv);
+    }
+    
+    return nodeDiv;
+}
+
+// Show member details in modal
+function showMemberDetails(memberData) {
+    const modal = document.getElementById('memberModal');
+    const detailsDiv = document.getElementById('memberDetails');
+    
+    detailsDiv.innerHTML = `
+        <div class="space-y-4">
+            <div class="text-center">
+                <div class="w-20 h-20 mx-auto rounded-full flex items-center justify-center text-2xl font-bold text-white mb-4" 
+                     style="background-color: ${memberData.status === 'Active' ? '#22c55e' : '#eab308'}">
+                    ${memberData.name ? memberData.name.charAt(0).toUpperCase() : 'U'}
+                </div>
+                <h4 class="text-xl font-bold text-gray-800">${memberData.name || 'Unknown'}</h4>
+                <p class="text-gray-600">${memberData.username}</p>
+            </div>
+            
+            <div class="border-t pt-4">
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <span class="text-gray-600">Status:</span>
+                        <span class="font-semibold ml-2 px-2 py-1 rounded text-xs ${memberData.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">
+                            ${memberData.status}
+                        </span>
+                    </div>
+                    <div>
+                        <span class="text-gray-600">Position:</span>
+                        <span class="font-semibold ml-2">${memberData.position || 'Root'}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex space-x-2">
+                <a href="/genealogy-tree/${memberData.id}/"
+                class="flex-1 bg-primary-600 text-white text-center py-2 rounded-lg hover:bg-primary-700 transition text-sm">
+                    View Tree
+                </a>
+                <a href="/level_wise_team/${memberData.id}/"
+                class="flex-1 bg-gray-600 text-white text-center py-2 rounded-lg hover:bg-gray-700 transition text-sm">
+                    View Team
+                </a>
+            </div>
+
+        </div>
+    `;
+    
+    modal.classList.remove('hidden');
+}
+
+// Event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    // Load tree data
+    loadTreeData();
+    
+    // Modal close
+    document.getElementById('closeModal').addEventListener('click', function() {
+        document.getElementById('memberModal').classList.add('hidden');
+    });
+    
+    // Close modal on backdrop click
+    document.getElementById('memberModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            this.classList.add('hidden');
+        }
+    });
+    
+    // Tree controls
+    document.getElementById('expandAll').addEventListener('click', function() {
+        // Implementation for expand all
+        console.log('Expand all clicked');
+    });
+    
+    document.getElementById('collapseAll').addEventListener('click', function() {
+        // Implementation for collapse all
+        console.log('Collapse all clicked');
+    });
+    
+    document.getElementById('resetView').addEventListener('click', function() {
+        loadTreeData();
+    });
+});
+</script>
+{% endblock %}

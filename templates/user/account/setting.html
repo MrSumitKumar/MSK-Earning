@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+
+{% block title %}Profile Settings - {{ site.company }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-8">
+    <div class="bg-white rounded-lg shadow-lg p-6">
+        <h1 class="text-2xl font-bold text-gray-800 mb-6">Profile Settings</h1>
+        
+        <form method="post" enctype="multipart/form-data" class="space-y-6">
+            {% csrf_token %}
+            
+            <!-- Profile Image Section -->
+            <div class="border-b border-gray-200 pb-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Profile Picture</h2>
+                <div class="flex items-center space-x-6">
+                    <div class="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden">
+                        {% if member.profile_image %}
+                            <img src="{{ member.profile_image.url }}" alt="Profile" class="w-full h-full object-cover">
+                        {% else %}
+                            <i data-feather="user" class="w-12 h-12 text-gray-400"></i>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <input type="file" name="profile_image" id="profile_image" accept="image/*" 
+                               class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100">
+                        <p class="mt-1 text-sm text-gray-500">Upload a new profile picture (JPG, PNG, GIF up to 5MB)</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Personal Information -->
+            <div class="border-b border-gray-200 pb-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Personal Information</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                        <input type="text" value="{{ member.user.first_name }}" readonly
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500">
+                        <p class="mt-1 text-xs text-gray-500">Contact support to change your name</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Username</label>
+                        <input type="text" value="{{ member.user.username }}" readonly
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500">
+                        <p class="mt-1 text-xs text-gray-500">Username cannot be changed</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                        <input type="email" value="{{ member.user.email }}" readonly
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500">
+                        <p class="mt-1 text-xs text-gray-500">Contact support to change your email</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Mobile Number</label>
+                        <input type="tel" value="{{ member.mobile_no }}" readonly
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500">
+                        <p class="mt-1 text-xs text-gray-500">Contact support to change your mobile number</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MLM Information -->
+            <div class="border-b border-gray-200 pb-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">MLM Information</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Sponsor</label>
+                        <input type="text" value="{% if member.sponsor %}{{ member.sponsor.first_name|default:member.sponsor.username }}{% else %}Admin{% endif %}" readonly
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Position</label>
+                        <input type="text" value="{{ member.position|default:'Root' }}" readonly
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Current Rank</label>
+                        <input type="text" value="Rank {{ member.rank_no }}" readonly
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                        <input type="text" value="{{ member.status }}" readonly
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account Statistics -->
+            <div>
+                <h2 class="text-lg font-semibold text-gray-800 mb-4">Account Statistics</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <div class="text-2xl font-bold text-green-600">₹{{ member.total_income|floatformat:2 }}</div>
+                        <div class="text-gray-600">Total Income</div>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <div class="text-2xl font-bold text-blue-600">₹{{ member.wallet_balance|floatformat:2 }}</div>
+                        <div class="text-gray-600">Wallet Balance</div>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <div class="text-2xl font-bold text-purple-600">{{ member.all_matching_pairs }}</div>
+                        <div class="text-gray-600">Matching Pairs</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="pt-6">
+                <button type="submit" class="bg-primary-600 text-white px-6 py-2 rounded-lg hover:bg-primary-700 transition">
+                    <i data-feather="save" class="w-4 h-4 inline mr-2"></i>
+                    Update Profile
+                </button>
+                <a href="{% url 'profile' %}" class="ml-4 bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Additional Settings -->
+    <div class="mt-8 bg-white rounded-lg shadow-lg p-6">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">Account Actions</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <a href="{% url 'payment_setting' %}" class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition">
+                <i data-feather="credit-card" class="w-6 h-6 text-green-600 mr-3"></i>
+                <div>
+                    <div class="font-semibold text-gray-800">Payment Settings</div>
+                    <div class="text-sm text-gray-600">Update bank details and UPI</div>
+                </div>
+            </a>
+            <a href="{% url 'password_reset' %}" class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition">
+                <i data-feather="lock" class="w-6 h-6 text-blue-600 mr-3"></i>
+                <div>
+                    <div class="font-semibold text-gray-800">Change Password</div>
+                    <div class="text-sm text-gray-600">Update your account password</div>
+                </div>
+            </a>
+            <a href="{% url 'dashboard' %}" class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition">
+                <i data-feather="home" class="w-6 h-6 text-purple-600 mr-3"></i>
+                <div>
+                    <div class="font-semibold text-gray-800">Dashboard</div>
+                    <div class="text-sm text-gray-600">Return to main dashboard</div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+// Preview profile image
+document.getElementById('profile_image').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.querySelector('.w-24 img, .w-24 i').parentElement;
+            preview.innerHTML = `<img src="${e.target.result}" alt="Profile Preview" class="w-full h-full object-cover">`;
+        };
+        reader.readAsDataURL(file);
+    }
+});
+</script>
+{% endblock %}

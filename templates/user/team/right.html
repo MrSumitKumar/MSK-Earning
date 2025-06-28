@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+
+{% block title %}Right Team - {{ site.company }}{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800">Right Team</h1>
+                <p class="text-gray-600">{{ sponsor.user.first_name|default:sponsor.user.username }}'s Right Side Team</p>
+            </div>
+            <div class="text-right">
+                <div class="text-3xl font-bold text-green-600">
+                    {% if team %}{{ team.team_members }}{% else %}0{% endif %}
+                </div>
+                <div class="text-gray-600">Total Members</div>
+            </div>
+        </div>
+    </div>
+
+    {% if team and team.members.all %}
+    <!-- Team Statistics -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <div class="flex items-center">
+                <div class="bg-green-100 rounded-full p-3 mr-4">
+                    <i data-feather="check-circle" class="w-6 h-6 text-green-600"></i>
+                </div>
+                <div>
+                    <div class="text-2xl font-bold text-gray-800">
+                        {{ team.members.all|length }}
+                    </div>
+                    <div class="text-gray-600">Active Members</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <div class="flex items-center">
+                <div class="bg-green-100 rounded-full p-3 mr-4">
+                    <i data-feather="trending-up" class="w-6 h-6 text-green-600"></i>
+                </div>
+                <div>
+                    <div class="text-2xl font-bold text-gray-800">
+                        {{ team.members.all|length }}
+                    </div>
+                    <div class="text-gray-600">Total Right Team</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <div class="flex items-center">
+                <div class="bg-purple-100 rounded-full p-3 mr-4">
+                    <i data-feather="layers" class="w-6 h-6 text-purple-600"></i>
+                </div>
+                <div>
+                    <div class="text-2xl font-bold text-gray-800">
+                        Multiple
+                    </div>
+                    <div class="text-gray-600">Levels Deep</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Team Members List -->
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-lg font-semibold text-gray-800">Right Team Members</h2>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Member</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Username</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mobile</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Join Date</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for member in team.members.all %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center mr-3">
+                                    {% if member.profile_image %}
+                                        <img src="{{ member.profile_image.url }}" alt="Profile" class="w-8 h-8 rounded-full object-cover">
+                                    {% else %}
+                                        <i data-feather="user" class="w-4 h-4 text-primary-600"></i>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <div class="text-sm font-medium text-gray-900">
+                                        {{ member.user.first_name|default:member.user.username }}
+                                    </div>
+                                    <div class="text-sm text-gray-500">Position: {{ member.position|default:"--" }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ member.user.username }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                {% if member.status == 'Active' %}bg-green-100 text-green-800{% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                {{ member.status }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ member.mobile_no }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ member.joined_on|date:"M d, Y" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <div class="flex space-x-2">
+                                <a href="{% url 'right_team' member.id %}" class="text-green-600 hover:text-green-900">View</a>
+                                <a href="{% url 'genealogy_tree' member.id %}" class="text-purple-600 hover:text-purple-900">Tree</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% else %}
+    <!-- Empty State -->
+    <div class="bg-white rounded-lg shadow-lg p-12 text-center">
+        <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <i data-feather="arrow-right" class="w-12 h-12 text-gray-400"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">No Right Team Members</h2>
+        <p class="text-gray-600 mb-8">{{ sponsor.user.first_name|default:sponsor.user.username }} doesn't have any members on the right side yet.</p>
+        
+        {% if request.user == sponsor.user %}
+        <p class="text-gray-700">Start building your right team by sharing your Right position referral link!</p>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Navigation -->
+    <div class="mt-8 flex justify-center space-x-4">
+        <a href="{% url 'left_team' sponsor.id %}" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
+            <i data-feather="arrow-left" class="w-4 h-4 inline mr-2"></i>
+            View Left Team
+        </a>
+        <a href="{% url 'direct_team' sponsor.id %}" class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition">
+            <i data-feather="users" class="w-4 h-4 inline mr-2"></i>
+            View Direct Team
+        </a>
+        <a href="{% url 'dashboard' %}" class="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition">
+            <i data-feather="home" class="w-4 h-4 inline mr-2"></i>
+            Dashboard
+        </a>
+    </div>
+</div>
+{% endblock %}
